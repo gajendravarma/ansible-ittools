@@ -1,6 +1,6 @@
 ---
 - name: Install essential infra tools on Windows
-  hosts: windows
+  hosts: all
   gather_facts: no
   vars:
     download_dir: 'C:\Temp\tools'

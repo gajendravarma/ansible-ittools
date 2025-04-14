@@ -1,0 +1,69 @@
+---
+- name: Install essential infra tools on Windows
+  hosts: windows
+  gather_facts: no
+  vars:
+    download_dir: 'C:\Temp\tools'
+
+  tasks:
+
+    - name: Create local tools directory
+      win_file:
+        path: "{{ download_dir }}"
+        state: directory
+
+    - name: Install PuTTY
+      win_package:
+        path: "{{ download_dir }}\\putty-64bit-installer.msi"
+        product_id: '{F6DC8C45-40E5-4A06-9C02-CA6C6187F3FB}'
+        arguments: /quiet
+      when: ansible_os_family == 'Windows'
+      register: putty_installed
+      until: putty_installed is succeeded
+      retries: 3
+      delay: 10
+      pre_tasks:
+        - name: Download PuTTY installer
+          win_get_url:
+            url: https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-installer.msi
+            dest: "{{ download_dir }}\\putty-64bit-installer.msi"
+
+    - name: Install 7-Zip
+      win_package:
+        path: "{{ download_dir }}\\7z.exe"
+        arguments: /S
+      pre_tasks:
+        - name: Download 7-Zip
+          win_get_url:
+            url: https://www.7-zip.org/a/7z2301-x64.exe
+            dest: "{{ download_dir }}\\7z.exe"
+
+    - name: Install Notepad++
+      win_package:
+        path: "{{ download_dir }}\\npp.exe"
+        arguments: /S
+      pre_tasks:
+        - name: Download Notepad++
+          win_get_url:
+            url: https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.6.4/npp.8.6.4.Installer.x64.exe
+            dest: "{{ download_dir }}\\npp.exe"
+
+    - name: Install Git for Windows
+      win_package:
+        path: "{{ download_dir }}\\git-installer.exe"
+        arguments: /VERYSILENT
+      pre_tasks:
+        - name: Download Git
+          win_get_url:
+            url: https://github.com/git-for-windows/git/releases/download/v2.44.0.windows.1/Git-2.44.0-64-bit.exe
+            dest: "{{ download_dir }}\\git-installer.exe"
+
+    - name: Install WinSCP
+      win_package:
+        path: "{{ download_dir }}\\winscp.exe"
+        arguments: /silent
+      pre_tasks:
+        - name: Download WinSCP
+          win_get_url:
+            url: https://winscp.net/download/WinSCP-6.1.2-Setup.exe
+            dest: "{{ download_dir }}\\winscp.exe"
